@@ -37,22 +37,10 @@ def get_active_window():
 
 
 def get_chrome_url():
-    if sys.platform in ['Windows', 'win32', 'cygwin']:
-        window = win32gui.GetForegroundWindow()
-        chromeControl = auto.ControlFromHandle(window)
-        edit = chromeControl.EditControl()
-        return 'https://' + edit.GetValuePattern().Value
-    elif sys.platform in ['Mac', 'darwin', 'os2', 'os2emx']:
-        textOfMyScript = """tell app "google chrome" to get the url of the active tab of window 1"""
-        s = NSAppleScript.initWithSource_(
-            NSAppleScript.alloc(), textOfMyScript)
-        results, err = s.executeAndReturnError_(None)
-        return results.stringValue()
-    else:
-        print("sys.platform={platform} is not supported."
-              .format(platform=sys.platform))
-        print(sys.version)
-    return _active_window_name
+    window = win32gui.GetForegroundWindow()
+    chromeControl = auto.ControlFromHandle(window)
+    edit = chromeControl.EditControl()
+    return 'https://' + edit.GetValuePattern().Value
 
 try:
     activeList.initialize_me()
@@ -67,11 +55,6 @@ try:
             new_window_name = get_active_window()
             if 'Google Chrome' in new_window_name:
                 new_window_name = url_to_name(get_chrome_url())
-        if sys.platform in ['linux', 'linux2']:
-            new_window_name = l.get_active_window_x()
-            if 'Google Chrome' in new_window_name:
-                new_window_name = l.get_chrome_url_x()
-
         
         if active_window_name != new_window_name:
             print(active_window_name)
