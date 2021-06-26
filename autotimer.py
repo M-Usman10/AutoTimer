@@ -5,14 +5,9 @@ from activity import *
 import json
 import datetime
 import sys
-if sys.platform in ['Windows', 'win32', 'cygwin']:
-    import win32gui
-    import uiautomation as auto
-elif sys.platform in ['Mac', 'darwin', 'os2', 'os2emx']:
-    from AppKit import NSWorkspace
-    from Foundation import *
-elif sys.platform in ['linux', 'linux2']:
-        import linux as l
+import win32gui
+import uiautomation as auto
+
 
 active_window_name = ""
 activity_name = ""
