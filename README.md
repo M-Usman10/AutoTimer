@@ -1,6 +1,6 @@
-#AutoTimer
+# AutoTimer
 
-##Project Description
+## Project Description
 A timer tracker app for win32 OS. It is designed for an organization, monitors activity logs of employees and saves them to database.
 
 ## Getting started
