@@ -1,0 +1,2 @@
+MONGODB_CONNECTION_STRING = "mongodb+srv://usman:Syrdo0-kojtor-rodpez@cluster0.fjl44.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+TIMELOG_METAKEYS = set(["id", "date","time", "activity", "duration"])
