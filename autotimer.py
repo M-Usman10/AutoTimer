@@ -1,10 +1,8 @@
 from __future__ import print_function
 import time
-from os import system
 from activity import *
 import json
 import datetime
-import sys
 import win32gui
 import uiautomation as auto
 
@@ -43,11 +41,10 @@ except Exception:
 try:
     while True:
         previous_site = ""
-        if sys.platform not in ['linux', 'linux2']:
-            new_window_name = get_active_window()
-            if 'Google Chrome' in new_window_name:
-                new_window_name = url_to_name(get_chrome_url())
-        
+        new_window_name = get_active_window()
+        if 'Google Chrome' in new_window_name:
+            new_window_name = url_to_name(get_chrome_url())
+
         if active_window_name != new_window_name:
             print(active_window_name)
             activity_name = active_window_name
