@@ -4,7 +4,7 @@ import os
 from pymongo import MongoClient
 
 from tools import get_date, get_time
-from configs import MONGODB_CONNECTION_STRING,TIMELOG_METAKEYS
+from configs import MONGODB_CONNECTION_STRING,TIMELOG_METAKEYS,ID
 
 class Data:
     """
@@ -68,10 +68,10 @@ class Data:
         if os.path.isfile("timelogs.json"):
             with open("timelogs.json") as file:
                 time_logs = json.load(file)
-            return defaultdict(lambda x:0,time_logs)
-        return defaultdict(lambda x:0, {})
+            return defaultdict(lambda x:{"id":ID,"duration":0,"date":get_date(),"time":get_time()},time_logs)
+        return defaultdict(lambda x:{"id":ID,"duration":0,"date":get_date(),"time":get_time()}, {})
 
-    def insert_timelogs(self, time_logs):
+    def insert_timelogs_to_db(self, time_logs):
         """
         Performs validation and Inserts one time log entry to the database
         """
@@ -93,7 +93,7 @@ class Data:
             json.dump(time_logs, file)
 
         #Saving to cloud
-        self.insert_timelogs(time_logs)
+        self.insert_timelogs_to_db(time_logs)
 
 if __name__ == "__main__":
     data = Data(db_name="time-logs",collection_name="logs-data")

@@ -1,12 +1,12 @@
-import json
+import asyncio
 import time
 
 import uiautomation as auto
 import win32gui
 
-from activity import *
 from db import Data
 from tools import url_to_name
+from configs import DATA_SYNC_DURATION
 
 class TimeTracker:
     """
@@ -37,8 +37,12 @@ class TimeTracker:
         edit = chromeControl.EditControl()
         return 'https://' + edit.GetValuePattern().Value
 
-    def track_time(self):
-        time_logs = self.data.load_time_logs()
+    async def track_time(self):
+        """
+        Tracks activities and saves info to cloud db and to local storage as json
+        """
+
+        self.time_logs = self.data.load_time_logs()
         start_time = time.time()
         active_window_name=""
         while True:
@@ -48,6 +52,17 @@ class TimeTracker:
             if active_window_name != activity:
                 print(active_window_name)
                 total_activity_duration = time.time() - start_time
-                time_logs[active_window_name]["duration"]+=total_activity_duration
+                async with asyncio.Lock():
+                    self.time_logs[active_window_name]["duration"] += total_activity_duration
                 active_window_name = activity
             time.sleep(1)
+
+    async def save_logs(self):
+        await asyncio.sleep(DATA_SYNC_DURATION)
+        async with asyncio.Lock():
+            self.data.save_time_logs()
+
+if __name__ == "__main__":
+    tracker = TimeTracker()
+    await asyncio.create_task(tracker.track_time())
+    await asyncio.create_task(tracker.save_logs())
