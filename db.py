@@ -1,5 +1,6 @@
 from collections import defaultdict
 import json
+import logging
 import os
 from pymongo import MongoClient
 
@@ -45,7 +46,7 @@ class Data:
         if self.collection:
             time_log = self.collection.find_one({"activity":activity,"date":date})
         else:
-            print("No collection exists")
+            logging.info("No collection exists")
         return time_log
 
     @staticmethod
@@ -63,15 +64,16 @@ class Data:
         """
         Performs validation and Inserts one time log entry to the database
         """
+        logging.info("Saving Data to Json")
         if len(time_logs):
             time_log = time_logs[0]
             if set(time_log.keys()) == TIMELOG_METAKEYS:
                 if self.collection:
                     self.collection.insert_many(time_logs)
                 else:
-                    print("No collection exists")
+                    logging.info("No collection exists, could not save timelogs")
             else:
-                print("Keys not matching with metadata info")
+                logging.info("Keys not matching with metadata info")
 
     def save_time_logs(self,time_logs):
         """
@@ -79,7 +81,7 @@ class Data:
         """
         with open("timelogs.json","w") as file:
             json.dump(time_logs, file)
-
+        
         #Saving to cloud
         self.insert_timelogs_to_db(time_logs)
 
@@ -93,4 +95,4 @@ if __name__ == "__main__":
               "duration": 100
               }
     data.insert_timelog(record1)
-    print(data.get_timelog(get_date(),"Vmware"))
+    logging.info(data.get_timelog(get_date(),"Vmware"))

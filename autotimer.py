@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import time
 
 import uiautomation as auto
@@ -50,7 +51,7 @@ class TimeTracker:
             if 'Google Chrome' in activity:
                 activity = url_to_name(self.get_chrome_url())
             if active_window_name != activity:
-                print(active_window_name)
+                logging.info(active_window_name)
                 total_activity_duration = time.time() - start_time
                 async with asyncio.Lock():
                     self.time_logs[active_window_name]["duration"] += total_activity_duration
@@ -60,9 +61,12 @@ class TimeTracker:
     async def save_logs(self):
         await asyncio.sleep(DATA_SYNC_DURATION)
         async with asyncio.Lock():
+            logging.info("Saving Data to Json")
             self.data.save_time_logs()
 
 async def main():
+    format = "%(asctime)s: %(message)s"
+    logging.basicConfig(format=format, level=logging.INFO,datefmt = "%d:%m:%Y--%H:%M:%S")
     tracker = TimeTracker()
     await asyncio.create_task(tracker.track_time())
     await asyncio.create_task(tracker.save_logs())
