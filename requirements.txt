@@ -4,3 +4,4 @@ uiautomation
 selenium
 asyncio
 pymongo
+dnspython

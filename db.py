@@ -38,18 +38,6 @@ class Data:
             self.make_db()
         self.collection = self.db[self.collection_name]
 
-    def insert_timelog(self, time_log):
-        """
-        Performs validation and Inserts one time log entry to the database
-        """
-        if set(time_log.keys()) == TIMELOG_METAKEYS:
-            if self.collection:
-                self.collection.insert_one(time_log)
-            else:
-                print("No collection exists")
-        else:
-            print("Keys not matching with metainfo")
-
     def get_timelog(self,date, activity):
         """
         Fetches one time log entry form cloud database
@@ -68,8 +56,8 @@ class Data:
         if os.path.isfile("timelogs.json"):
             with open("timelogs.json") as file:
                 time_logs = json.load(file)
-            return defaultdict(lambda x:{"id":ID,"duration":0,"date":get_date(),"time":get_time()},time_logs)
-        return defaultdict(lambda x:{"id":ID,"duration":0,"date":get_date(),"time":get_time()}, {})
+            return defaultdict(lambda :{"id":ID,"duration":0,"date":get_date(),"time":get_time()},time_logs)
+        return defaultdict(lambda :{"id":ID,"duration":0,"date":get_date(),"time":get_time()}, {})
 
     def insert_timelogs_to_db(self, time_logs):
         """
@@ -89,7 +77,7 @@ class Data:
         """
         Saves time logs to local storage
         """
-        with open("timelogs.json") as file:
+        with open("timelogs.json","w") as file:
             json.dump(time_logs, file)
 
         #Saving to cloud
