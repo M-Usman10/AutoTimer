@@ -56,20 +56,22 @@ class TimeTracker:
                 async with asyncio.Lock():
                     self.time_logs[active_window_name]["duration"] += total_activity_duration
                 active_window_name = activity
-            time.sleep(1)
+            await asyncio.sleep(5)
 
     async def save_logs(self):
         await asyncio.sleep(DATA_SYNC_DURATION)
         async with asyncio.Lock():
             logging.info("Saving Data to Json")
-            self.data.save_time_logs()
+            self.data.save_time_logs(self.time_logs)
 
 async def main():
     format = "%(asctime)s: %(message)s"
     logging.basicConfig(format=format, level=logging.INFO,datefmt = "%d:%m:%Y--%H:%M:%S")
     tracker = TimeTracker()
-    await asyncio.create_task(tracker.track_time())
-    await asyncio.create_task(tracker.save_logs())
+    track_time = asyncio.create_task(tracker.track_time())
+    save_logs = asyncio.create_task(tracker.save_logs())
+    await save_logs
+    await track_time
 
 if __name__ == "__main__":
     asyncio.run(main())

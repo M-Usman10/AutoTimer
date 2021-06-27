@@ -79,7 +79,7 @@ class Data:
         """
         Saves time logs to local storage
         """
-        with open("timelogs.json","w") as file:
+        with open("./timelogs.json","w") as file:
             json.dump(time_logs, file)
         
         #Saving to cloud
