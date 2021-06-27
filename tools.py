@@ -15,3 +15,12 @@ def get_date():
     now = datetime.now()
     current_date = now.strftime("%d-%m-%Y")
     return current_date
+
+def url_to_name(url):
+    """
+    Returns domain name of the given url
+    """
+    string_list = url.split('/')
+    if len(string_list) >2:
+        return string_list[2]
+    return ""

@@ -1,9 +1,15 @@
+from collections import defaultdict
+import json
+import os
+from pymongo import MongoClient
+
 from tools import get_date, get_time
 from configs import MONGODB_CONNECTION_STRING,TIMELOG_METAKEYS
-from pymongo import MongoClient
-import re
 
 class Data:
+    """
+    Data class maintains timelogs locally and in the cloud database
+    """
     def __init__(self,db_name,collection_name):
         self.connection_string = MONGODB_CONNECTION_STRING
         self.db_name = db_name
@@ -11,19 +17,31 @@ class Data:
         self.client, self.db, self.collection = None,None,None
 
     def make_client(self):
+        """
+        Makes a MongoDB client, an exception is thrown if connection string is not correct
+        """
         self.client = MongoClient(self.connection_string)
 
     def make_db(self):
+        """
+        Initializes db object for a pre-existing database in MongoDB
+        """
         if self.client is None:
             self.make_client()
         self.db = self.client[self.db_name]
 
     def make_collection(self):
+        """
+        MongoDB stores data in the form of collections, we are initializing our collection here
+        """
         if self.db is None:
             self.make_db()
         self.collection = self.db[self.collection_name]
 
     def insert_timelog(self, time_log):
+        """
+        Performs validation and Inserts one time log entry to the database
+        """
         if set(time_log.keys()) == TIMELOG_METAKEYS:
             if self.collection:
                 self.collection.insert_one(time_log)
@@ -33,19 +51,58 @@ class Data:
             print("Keys not matching with metainfo")
 
     def get_timelog(self,date, activity):
+        """
+        Fetches one time log entry form cloud database
+        """
         if self.collection:
             time_log = self.collection.find_one({"activity":activity,"date":date})
         else:
             print("No collection exists")
         return time_log
 
-data = Data(db_name="time-logs",collection_name="logs-data")
-data.make_collection()
-record1 ={"id":1,
-          "time":get_time(),
-          "date":get_date(),
-          "activity":"Vmware",
-          "duration": 100
-          }
-data.insert_timelog(record1)
-print(data.get_timelog(get_date(),"Vmware"))
+    @staticmethod
+    def load_time_logs():
+        """
+        Loads time logs from local storage
+        """
+        if os.path.isfile("timelogs.json"):
+            with open("timelogs.json") as file:
+                time_logs = json.load(file)
+            return defaultdict(lambda x:0,time_logs)
+        return defaultdict(lambda x:0, {})
+
+    def insert_timelogs(self, time_logs):
+        """
+        Performs validation and Inserts one time log entry to the database
+        """
+        if len(time_logs):
+            time_log = time_logs[0]
+            if set(time_log.keys()) == TIMELOG_METAKEYS:
+                if self.collection:
+                    self.collection.insert_many(time_logs)
+                else:
+                    print("No collection exists")
+            else:
+                print("Keys not matching with metadata info")
+
+    def save_time_logs(self,time_logs):
+        """
+        Saves time logs to local storage
+        """
+        with open("timelogs.json") as file:
+            json.dump(time_logs, file)
+
+        #Saving to cloud
+        self.insert_timelogs(time_logs)
+
+if __name__ == "__main__":
+    data = Data(db_name="time-logs",collection_name="logs-data")
+    record1 ={
+              "id":1,
+              "time":get_time(),
+              "date":get_date(),
+              "activity":"Vmware",
+              "duration": 100
+              }
+    data.insert_timelog(record1)
+    print(data.get_timelog(get_date(),"Vmware"))

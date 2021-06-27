@@ -1,74 +1,53 @@
-from __future__ import print_function
-import time
-from activity import *
 import json
-import win32gui
+import time
+
 import uiautomation as auto
+import win32gui
+
+from activity import *
+from db import Data
+from tools import url_to_name
+
+class TimeTracker:
+    """
+    Time tracker records time of ongiong screen activities, save time logs to local storage and sync them with MongoDB
+    """
+    def __init__(self):
+        self.data = Data(db_name="time-logs",collection_name="logs-data")
+        self.data.make_collection()
+
+    @staticmethod
+    def get_active_window():
+        """
+        Returns the name of currently running foreground window
+        """
+        _active_window_name = None
+        window = win32gui.GetForegroundWindow()
+        _active_window_name = win32gui.GetWindowText(window)
+        return _active_window_name
 
 
-active_window_name = ""
-activity_name = ""
-start_time = time.time()
-activeList = AcitivyList([])
-first_time = True
+    @staticmethod
+    def get_chrome_url():
+        """
+        Returns the url opened in chromw
+        """
+        window = win32gui.GetForegroundWindow()
+        chromeControl = auto.ControlFromHandle(window)
+        edit = chromeControl.EditControl()
+        return 'https://' + edit.GetValuePattern().Value
 
-
-def url_to_name(url):
-    string_list = url.split('/')
-    return string_list[2]
-
-
-def get_active_window():
-    _active_window_name = None
-    window = win32gui.GetForegroundWindow()
-    _active_window_name = win32gui.GetWindowText(window)
-    return _active_window_name
-
-
-def get_chrome_url():
-    window = win32gui.GetForegroundWindow()
-    chromeControl = auto.ControlFromHandle(window)
-    edit = chromeControl.EditControl()
-    return 'https://' + edit.GetValuePattern().Value
-
-try:
-    activeList.initialize_me()
-except Exception:
-    print('No json')
-
-
-try:
-    while True:
-        previous_site = ""
-        new_window_name = get_active_window()
-        if 'Google Chrome' in new_window_name:
-            new_window_name = url_to_name(get_chrome_url())
-
-        if active_window_name != new_window_name:
-            print(active_window_name)
-            activity_name = active_window_name
-
-            if not first_time:
+    def track_time(self):
+        time_logs = self.data.load_time_logs()
+        start_time = time.time()
+        active_window_name=""
+        while True:
+            activity = self.get_active_window()
+            if 'Google Chrome' in activity:
+                activity = url_to_name(self.get_chrome_url())
+            if active_window_name != activity:
+                print(active_window_name)
                 total_activity_duration = time.time() - start_time
-                data[activity]["duration"]+=total_activity_duration
-                exists = False
-                for activity in activeList.activities:
-                    if activity.name == activity_name:
-                        exists = True
-                        activity.time_entries.append(time_entry)
-
-                if not exists:
-                    activity = Activity(activity_name, [time_entry])
-                    activeList.activities.append(activity)
-                with open('activities.json', 'w') as json_file:
-                    json.dump(activeList.serialize(), json_file,
-                              indent=4, sort_keys=True)
-                    start_time = datetime.datetime.now()
-            first_time = False
-            active_window_name = new_window_name
-
-        time.sleep(1)
-    
-except KeyboardInterrupt:
-    with open('activities.json', 'w') as json_file:
-        json.dump(activeList.serialize(), json_file, indent=4, sort_keys=True)
+                time_logs[active_window_name]["duration"]+=total_activity_duration
+                active_window_name = activity
+            time.sleep(1)
