@@ -66,7 +66,7 @@ class Data:
         """
         Performs validation and Inserts one time log entry to the database
         """
-        logging.info("Saving Data to Json")
+        logging.info("Saving Data to MongoDB")
         if self.collection:
             self.collection.insert_one(time_logs)
         else:
