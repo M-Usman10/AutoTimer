@@ -25,6 +25,8 @@ class TimeTracker:
         _active_window_name = None
         window = win32gui.GetForegroundWindow()
         _active_window_name = win32gui.GetWindowText(window)
+        _active_window_name = _active_window_name.replace(".","-")
+        _active_window_name = _active_window_name.replace("$", "-")
         return _active_window_name
 
 
@@ -36,7 +38,10 @@ class TimeTracker:
         window = win32gui.GetForegroundWindow()
         chromeControl = auto.ControlFromHandle(window)
         edit = chromeControl.EditControl()
-        return 'https://' + edit.GetValuePattern().Value
+        _active_window_name = edit.GetValuePattern().Value
+        _active_window_name = _active_window_name.replace(".", "-")
+        _active_window_name = _active_window_name.replace("$", "-")
+        return 'https://' + _active_window_name
 
     async def track_time(self):
         """
@@ -45,24 +50,25 @@ class TimeTracker:
 
         self.time_logs = self.data.load_time_logs()
         start_time = time.time()
-        active_window_name=""
+        active_window_name="Idle"
         while True:
             activity = self.get_active_window()
             if 'Google Chrome' in activity:
                 activity = url_to_name(self.get_chrome_url())
-            if active_window_name != activity:
+            if active_window_name != activity and active_window_name!="":
                 logging.info(active_window_name)
                 total_activity_duration = time.time() - start_time
                 async with asyncio.Lock():
                     self.time_logs[get_date()][active_window_name]["duration"] += total_activity_duration
                 active_window_name = activity
-            await asyncio.sleep(5)
+            await asyncio.sleep(1)
 
     async def save_logs(self):
-        await asyncio.sleep(DATA_SYNC_DURATION)
-        async with asyncio.Lock():
-            logging.info("Saving Data to Json")
-            self.data.save_time_logs(self.time_logs)
+        while True:
+            await asyncio.sleep(DATA_SYNC_DURATION)
+            async with asyncio.Lock():
+                logging.info("Saving Data to Json")
+                self.data.save_time_logs(self.time_logs)
 
 async def main():
     format = "%(asctime)s: %(message)s"
