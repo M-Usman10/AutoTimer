@@ -5,3 +5,4 @@ selenium
 asyncio
 pymongo
 dnspython
+certifi

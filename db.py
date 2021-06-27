@@ -1,3 +1,4 @@
+import certifi
 from collections import defaultdict
 import json
 import logging
@@ -21,7 +22,7 @@ class Data:
         """
         Makes a MongoDB client, an exception is thrown if connection string is not correct
         """
-        self.client = MongoClient(self.connection_string)
+        self.client = MongoClient(self.connection_string,tlsCAFile=certifi.where())
 
     def make_db(self):
         """
@@ -90,5 +91,6 @@ if __name__ == "__main__":
               "activity":"Vmware",
               "duration": 100
               }
-    data.insert_timelog(record1)
+    data.make_collection()
+    data.insert_timelogs_to_db(record1)
     logging.info(data.get_timelog(get_date(),"Vmware"))
