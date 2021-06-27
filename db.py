@@ -57,6 +57,7 @@ class Data:
         if os.path.isfile("timelogs.json"):
             with open("timelogs.json") as file:
                 time_logs = json.load(file)
+                time_logs = {key:defaultdict(lambda :{"id":ID,"duration":0,"time":get_time()},value) for key,value in time_logs.items()}
             return defaultdict(lambda :defaultdict(lambda :{"id":ID,"duration":0,"time":get_time()}, {}),time_logs)
         return defaultdict(lambda :defaultdict(lambda :{"id":ID,"duration":0,"time":get_time()}, {}), {})
 
