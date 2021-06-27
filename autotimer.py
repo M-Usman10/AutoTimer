@@ -2,14 +2,13 @@ from __future__ import print_function
 import time
 from activity import *
 import json
-import datetime
 import win32gui
 import uiautomation as auto
 
 
 active_window_name = ""
 activity_name = ""
-start_time = datetime.datetime.now()
+start_time = time.time()
 activeList = AcitivyList([])
 first_time = True
 
@@ -50,10 +49,8 @@ try:
             activity_name = active_window_name
 
             if not first_time:
-                end_time = datetime.datetime.now()
-                time_entry = TimeEntry(start_time, end_time, 0, 0, 0, 0)
-                time_entry._get_specific_times()
-
+                total_activity_duration = time.time() - start_time
+                data[activity]["duration"]+=total_activity_duration
                 exists = False
                 for activity in activeList.activities:
                     if activity.name == activity_name:
