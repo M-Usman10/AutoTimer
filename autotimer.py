@@ -6,7 +6,7 @@ import uiautomation as auto
 import win32gui
 
 from db import Data
-from tools import url_to_name
+from tools import url_to_name,get_date
 from configs import DATA_SYNC_DURATION
 
 class TimeTracker:
@@ -54,7 +54,7 @@ class TimeTracker:
                 logging.info(active_window_name)
                 total_activity_duration = time.time() - start_time
                 async with asyncio.Lock():
-                    self.time_logs[active_window_name]["duration"] += total_activity_duration
+                    self.time_logs[get_date()][active_window_name]["duration"] += total_activity_duration
                 active_window_name = activity
             await asyncio.sleep(5)
 

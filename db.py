@@ -57,23 +57,18 @@ class Data:
         if os.path.isfile("timelogs.json"):
             with open("timelogs.json") as file:
                 time_logs = json.load(file)
-            return defaultdict(lambda :{"id":ID,"duration":0,"date":get_date(),"time":get_time()},time_logs)
-        return defaultdict(lambda :{"id":ID,"duration":0,"date":get_date(),"time":get_time()}, {})
+            return defaultdict(lambda :defaultdict(lambda :{"id":ID,"duration":0,"time":get_time()}, {}),time_logs)
+        return defaultdict(lambda :defaultdict(lambda :{"id":ID,"duration":0,"time":get_time()}, {}), {})
 
     def insert_timelogs_to_db(self, time_logs):
         """
         Performs validation and Inserts one time log entry to the database
         """
         logging.info("Saving Data to Json")
-        if len(time_logs):
-            time_log = time_logs[0]
-            if set(time_log.keys()) == TIMELOG_METAKEYS:
-                if self.collection:
-                    self.collection.insert_many(time_logs)
-                else:
-                    logging.info("No collection exists, could not save timelogs")
-            else:
-                logging.info("Keys not matching with metadata info")
+        if self.collection:
+            self.collection.insert_one(time_logs)
+        else:
+            logging.info("No collection exists, could not save timelogs")
 
     def save_time_logs(self,time_logs):
         """
