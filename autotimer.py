@@ -62,7 +62,10 @@ class TimeTracker:
         async with asyncio.Lock():
             self.data.save_time_logs()
 
-if __name__ == "__main__":
+async def main():
     tracker = TimeTracker()
     await asyncio.create_task(tracker.track_time())
     await asyncio.create_task(tracker.save_logs())
+
+if __name__ == "__main__":
+    asyncio.run(main())
