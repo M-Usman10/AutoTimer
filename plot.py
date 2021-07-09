@@ -28,7 +28,7 @@ fig = px.pie(df, names="Activity", values="Time Spent (mins)")
 
 app.layout = html.Div([
     html.H3('AutoTimer',style={'textAlign': 'center'}),
-    html.Div('An automation solutoin to track screen activities',style={'textAlign': 'center'}),
+    html.Div('An automation solution to track screen activities',style={'textAlign': 'center'}),
     html.Div(f'User: {username}',style={'color': '#FFA500'}),
     html.Div(f'Date: {date}',style={'color': '#FFA500'}),
     dcc.Graph(
