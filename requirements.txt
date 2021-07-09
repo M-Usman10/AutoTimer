@@ -6,3 +6,4 @@ asyncio
 pymongo
 dnspython
 certifi
+plotly
