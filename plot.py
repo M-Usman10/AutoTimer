@@ -24,7 +24,7 @@ df = pd.DataFrame({
 })
 df["Time Spent (mins)"] = df["Time Spent (mins)"].astype(int)
 df = df[df["Time Spent (mins)"]>0]
-fig = px.pie(df, names="Activity", values="Time Spent (mins)")
+fig = px.bar(df, x="Activity", y="Time Spent (mins)", color="Activity")
 
 app.layout = html.Div([
     html.H3('AutoTimer',style={'textAlign': 'center'}),
